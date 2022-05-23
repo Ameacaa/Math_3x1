@@ -19,7 +19,7 @@ namespace Math_3x1
         {
             try 
             { 
-                SQLiteConnection.CreateFile($"{DBPath}");
+                if (!File.Exists(DBPath)) { SQLiteConnection.CreateFile($"{DBPath}"); }
                 try
                 {
                     using var cmd = DbConnection().CreateCommand();
@@ -36,10 +36,11 @@ namespace Math_3x1
             try
             {
                 using var cmd = DbConnection().CreateCommand();
-                cmd.CommandText = "SELECT MAX(id) FROM product;";
+                cmd.CommandText = "SELECT MAX(id) FROM Number;";
                 SQLiteDataAdapter da = new(cmd.CommandText, DbConnection());
-                ulong value = (ulong)cmd.ExecuteScalar();
-                return value;
+                object v = cmd.ExecuteScalar();
+                try { return (ulong)v; }
+                catch { return 1; }
             }
             catch { throw; }
         }

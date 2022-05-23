@@ -191,7 +191,7 @@ class Math3x1
 {
     static void SpeedTest()
     {
-        Console.WriteLine("Starting the speedtest, can take a long time");
+        Console.WriteLine("Starting the speedtest, can take a long time (~30sec)");
         ulong v = ulong.MinValue;
         DateTime start = DateTime.Now;
         while (v < 10000000000) { v++; }
@@ -201,26 +201,57 @@ class Math3x1
     }
 
 
-    static void FastCheck() 
-    { 
-    
+    static void NormalMode() 
+    {
+        int steps;
+        ulong a = Math_3x1.SQL.GetNextValue(), b = a + 100, t; // Start - End - Temp
+        List<ulong> midvalues = new(); // Save the middle values
+        if ( a == 1 ) { Math_3x1.SQL.AddNumber(1, "0", 0); a++; }
+        DateTime start = DateTime.Now;
+        while ( a < b )
+        {
+            steps = 0;
+            t = a;
+            midvalues.Clear();
+            while ( t != 1)
+            {
+                steps++;
+                if (t % 2 == 0) { t /= 2; }
+                else { t = 3 * t + 1; }
+                midvalues.Add(t);
+            }
+            string midv = string.Join(", ", midvalues.ToArray());
+            Math_3x1.SQL.AddNumber(a, midv, steps);
+            a++;
+        }
+        DateTime end = DateTime.Now;
+        Console.WriteLine(end - start);
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    static void DetailMode(ulong t)
+    {
+        int steps = 0;
+        List<ulong> midvalues = new(); // Save the middle values
+        DateTime start = DateTime.Now;
+        while (t != 1)
+        {
+            steps++;
+            if (t % 2 == 0) { t /= 2; }
+            else { t = 3 * t + 1; }
+            midvalues.Add(t);
+        }
+        string midv = string.Join(" -> ", midvalues.ToArray());
+        DateTime end = DateTime.Now;
+        Console.WriteLine("Time: " + (end - start));
+        Console.WriteLine(midv);
+    }
 
     static void Main()
     {
         //SpeedTest();
         Math_3x1.SQL.CreateDBFileSQLite();
+        Console.WriteLine(Math_3x1.SQL.GetNextValue());
+        NormalMode();
+        //DetailMode(27);
     }
 }
